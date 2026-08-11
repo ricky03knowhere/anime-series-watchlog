@@ -107,6 +107,26 @@ CREATE TRIGGER update_media_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
--- ─── 5. STORAGE BUCKET POLICIES (SUPABASE) ─────────
--- Storage buckets required:
--- 'media-posters' and 'media-backdrops'
+-- ─── 5. ROW LEVEL SECURITY (RLS) POLICIES ────────
+-- Enable public access policies so anon/publishable key can read & write data
+ALTER TABLE studios ENABLE ROW LEVEL SECURITY;
+ALTER TABLE genres ENABLE ROW LEVEL SECURITY;
+ALTER TABLE media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE media_genres ENABLE ROW LEVEL SECURITY;
+ALTER TABLE media_external_links ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public access for studios" ON studios;
+CREATE POLICY "Public access for studios" ON studios FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access for genres" ON genres;
+CREATE POLICY "Public access for genres" ON genres FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access for media" ON media;
+CREATE POLICY "Public access for media" ON media FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access for media_genres" ON media_genres;
+CREATE POLICY "Public access for media_genres" ON media_genres FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public access for media_external_links" ON media_external_links;
+CREATE POLICY "Public access for media_external_links" ON media_external_links FOR ALL USING (true) WITH CHECK (true);
+

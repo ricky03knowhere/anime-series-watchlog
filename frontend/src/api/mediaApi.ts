@@ -26,4 +26,9 @@ export const mediaApi = {
     const { data } = await api.delete(`/media/${id}`);
     return data;
   },
+
+  async seedDatabase(): Promise<ApiResponse<any>> {
+    const { data } = await api.post('/seed');
+    return data;
+  },
 };
