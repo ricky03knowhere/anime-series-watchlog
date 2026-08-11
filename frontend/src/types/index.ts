@@ -19,6 +19,7 @@ export interface Media {
   // Joined fields
   studio?: Studio;
   genres?: Genre[];
+  media_genres?: Array<{ genre?: Genre; genre_id?: string }>;
 }
 
 // ─── Genre Types ───────────────────────────────────────
