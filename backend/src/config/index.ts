@@ -1,7 +1,27 @@
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+// Find and load .env file from possible locations (process.cwd(), module dir, parent dirs)
+const candidateEnvPaths = [
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(__dirname, '../.env'),
+  path.resolve(__dirname, '../../.env'),
+  path.resolve(process.cwd(), 'backend/.env'),
+];
+
+let loadedEnvPath: string | null = null;
+for (const envPath of candidateEnvPaths) {
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    loadedEnvPath = envPath;
+    break;
+  }
+}
+
+if (!loadedEnvPath) {
+  dotenv.config(); // fallback to default dotenv resolution
+}
 
 export const config = {
   port: parseInt(process.env.PORT || '5000', 10),
@@ -26,7 +46,11 @@ export function validateEnv(): void {
   if (missing.length > 0) {
     console.warn(
       `⚠️  Missing environment variables: ${missing.join(', ')}\n` +
-      `   Copy .env.example to .env and fill in the values.`
+      `   Loaded from: ${loadedEnvPath || 'none'}\n` +
+      `   Copy .env.example to .env and fill in valid Supabase credentials.`
     );
+  } else {
+    console.log(`✅ Environment loaded from ${loadedEnvPath}`);
+    console.log(`🔗 Supabase URL: ${config.supabase.url}`);
   }
 }
