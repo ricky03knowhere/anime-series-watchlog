@@ -49,27 +49,7 @@ export function WatchlistPage() {
   );
 }
 
-export function Top10Page() {
-  return (
-    <PlaceholderPage
-      title="Top 10"
-      description="Your highest rated anime & TV series rankings."
-      emoji="🏆"
-      phase="Phase 8"
-    />
-  );
-}
 
-export function HistoryPage() {
-  return (
-    <PlaceholderPage
-      title="Watch History"
-      description="Timeline of your watching journey organized by date."
-      emoji="📅"
-      phase="Phase 8"
-    />
-  );
-}
 
 export function GenresPage() {
   return (

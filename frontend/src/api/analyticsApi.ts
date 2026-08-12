@@ -1,5 +1,16 @@
 import api from './client';
-import type { ApiResponse } from '@/types';
+import type {
+  ApiResponse,
+  Top10QueryParams,
+  Top10Item,
+  HistoryQueryParams,
+  HistoryData,
+  TimelineQueryParams,
+  TimelineData,
+  InsightsData,
+  GenreExplorerItem,
+  StudioExplorerItem,
+} from '@/types';
 
 export interface DashboardAnalyticsData {
   stats: {
@@ -38,4 +49,35 @@ export const analyticsApi = {
     const { data } = await api.get('/analytics/dashboard');
     return data;
   },
+
+  async getTop10(params?: Top10QueryParams): Promise<ApiResponse<Top10Item[]>> {
+    const { data } = await api.get('/analytics/top10', { params });
+    return data;
+  },
+
+  async getHistory(params?: HistoryQueryParams): Promise<ApiResponse<HistoryData>> {
+    const { data } = await api.get('/analytics/history', { params });
+    return data;
+  },
+
+  async getTimeline(params?: TimelineQueryParams): Promise<ApiResponse<TimelineData>> {
+    const { data } = await api.get('/analytics/timeline', { params });
+    return data;
+  },
+
+  async getInsights(): Promise<ApiResponse<InsightsData>> {
+    const { data } = await api.get('/analytics/insights');
+    return data;
+  },
+
+  async getGenreExplorer(): Promise<ApiResponse<GenreExplorerItem[]>> {
+    const { data } = await api.get('/analytics/genre-explorer');
+    return data;
+  },
+
+  async getStudioExplorer(): Promise<ApiResponse<StudioExplorerItem[]>> {
+    const { data } = await api.get('/analytics/studio-explorer');
+    return data;
+  },
 };
+

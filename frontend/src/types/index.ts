@@ -92,3 +92,130 @@ export interface DashboardSummary {
   totalStudios: number;
   totalGenres: number;
 }
+
+// ─── Top 10 Types ──────────────────────────────────────
+
+export interface Top10QueryParams {
+  year?: number;
+  type?: MediaType;
+  genre?: string;
+  studio?: string;
+  sort?: 'score' | 'episodes' | 'watched_date';
+}
+
+export interface Top10Item {
+  id: string;
+  title: string;
+  media_type: MediaType;
+  release_date: string | null;
+  episodes: number | null;
+  score: number | null;
+  watched_date: string | null;
+  poster_url: string | null;
+  studio: { id: string; name: string } | null;
+  genres: { id: string; name: string }[];
+}
+
+// ─── History Types ─────────────────────────────────────
+
+export interface HistoryQueryParams {
+  year?: number;
+  month?: number;
+}
+
+export interface HistoryMonthGroup {
+  month: number;
+  monthName: string;
+  items: Top10Item[];
+}
+
+export interface HistoryYearGroup {
+  year: number;
+  months: HistoryMonthGroup[];
+}
+
+export interface HistoryData {
+  history: HistoryYearGroup[];
+  availableYears: number[];
+  totalItems: number;
+}
+
+// ─── Timeline Types ────────────────────────────────────
+
+export interface TimelineQueryParams {
+  year?: number;
+  month?: number;
+}
+
+export interface TimelineData {
+  items: Top10Item[];
+  availableYears: number[];
+  totalItems: number;
+}
+
+// ─── Insights & Explorer Types ─────────────────────────
+
+export interface InsightCardItem {
+  id: number;
+  label: string;
+  value: string;
+  detail: string;
+  emoji: string;
+}
+
+export interface RatingOverTimeItem {
+  period: string;
+  averageScore: number;
+}
+
+export interface InsightsData {
+  personality: {
+    title: string;
+    description: string;
+  };
+  insights: InsightCardItem[];
+  ratingOverTime: RatingOverTimeItem[];
+}
+
+export interface ExplorerMediaItem {
+  id: string;
+  title: string;
+  media_type: MediaType;
+  release_date: string | null;
+  episodes: number | null;
+  score: number | null;
+  poster_url: string | null;
+}
+
+export interface GenreExplorerItem {
+  id: string;
+  name: string;
+  description: string | null;
+  totalWatched: number;
+  averageScore: number;
+  topMedia: {
+    id: string;
+    title: string;
+    poster_url: string | null;
+    score: number | null;
+  } | null;
+  mediaList: ExplorerMediaItem[];
+}
+
+export interface StudioExplorerItem {
+  id: string;
+  name: string;
+  description: string | null;
+  website_url: string | null;
+  totalWatched: number;
+  averageScore: number;
+  topTitle: {
+    id: string;
+    title: string;
+    poster_url: string | null;
+    score: number | null;
+  } | null;
+  mediaList: ExplorerMediaItem[];
+}
+
+

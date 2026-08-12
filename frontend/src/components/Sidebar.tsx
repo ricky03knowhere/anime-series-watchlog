@@ -7,7 +7,9 @@ import {
   History,
   Tags,
   Building2,
+  Calendar,
   BarChart3,
+  Compass,
   ChevronLeft,
   ChevronRight,
   X,
@@ -28,6 +30,10 @@ const navItems: NavItem[] = [
   { label: 'Watchlist', path: '/watchlist', icon: <Film size={20} />, group: 'MAIN' },
   { label: 'Top 10', path: '/top-10', icon: <Trophy size={20} />, group: 'MAIN' },
   { label: 'Watch History', path: '/history', icon: <History size={20} />, group: 'MAIN' },
+  { label: 'Timeline', path: '/timeline', icon: <Calendar size={20} />, group: 'MAIN' },
+  // EXPLORE
+  { label: 'Genre Explorer', path: '/genre-explorer', icon: <Compass size={20} />, group: 'EXPLORE' },
+  { label: 'Studio Explorer', path: '/studio-explorer', icon: <Compass size={20} />, group: 'EXPLORE' },
   // ANALYTICS
   { label: 'Insights', path: '/insights', icon: <BarChart3 size={20} />, group: 'ANALYTICS' },
   // MANAGEMENT
@@ -39,7 +45,7 @@ function Sidebar() {
   const { isCollapsed, isMobileOpen, toggleCollapse, closeMobile } = useSidebar();
   const location = useLocation();
 
-  const groups = ['MAIN', 'ANALYTICS', 'MANAGEMENT'] as const;
+  const groups = ['MAIN', 'EXPLORE', 'ANALYTICS', 'MANAGEMENT'] as const;
 
   const sidebarContent = (
     <div className="flex flex-col h-full">

@@ -6,14 +6,16 @@ import MainLayout from '@/layouts/MainLayout';
 import DashboardPage from '@/pages/DashboardPage';
 import WatchlistPage from '@/pages/WatchlistPage';
 import MediaDetailPage from '@/pages/MediaDetailPage';
-import {
-  Top10Page,
-  HistoryPage,
-  GenresPage,
-  StudiosPage,
-  InsightsPage,
-  NotFoundPage,
-} from '@/pages/PlaceholderPages';
+import Top10Page from '@/pages/Top10Page';
+import HistoryPage from '@/pages/HistoryPage';
+import TimelinePage from '@/pages/TimelinePage';
+import InsightsPage from '@/pages/InsightsPage';
+import GenreExplorerPage from '@/pages/GenreExplorerPage';
+import StudioExplorerPage from '@/pages/StudioExplorerPage';
+import GenresPage from '@/pages/GenresPage';
+import GenreDetailPage from '@/pages/GenreDetailPage';
+import StudiosPage from '@/pages/StudiosPage';
+import StudioDetailPage from '@/pages/StudioDetailPage';
 
 function App() {
   return (
@@ -27,10 +29,15 @@ function App() {
               <Route path="/watchlist/:id" element={<MediaDetailPage />} />
               <Route path="/top-10" element={<Top10Page />} />
               <Route path="/history" element={<HistoryPage />} />
-              <Route path="/genres" element={<GenresPage />} />
-              <Route path="/studios" element={<StudiosPage />} />
+              <Route path="/timeline" element={<TimelinePage />} />
+              <Route path="/genre-explorer" element={<GenreExplorerPage />} />
+              <Route path="/studio-explorer" element={<StudioExplorerPage />} />
               <Route path="/insights" element={<InsightsPage />} />
-              <Route path="*" element={<NotFoundPage />} />
+              <Route path="/genres" element={<GenresPage />} />
+              <Route path="/genres/:id" element={<GenreDetailPage />} />
+              <Route path="/studios" element={<StudiosPage />} />
+              <Route path="/studios/:id" element={<StudioDetailPage />} />
+              <Route path="*" element={<DashboardPage />} />
             </Route>
           </Routes>
         </ToastProvider>
