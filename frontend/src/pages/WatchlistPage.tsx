@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Search, SlidersHorizontal, X, LayoutGrid, LayoutList, ArrowUpDown, ArrowUp, ArrowDown, Plus, Edit3, Trash2, Eye } from 'lucide-react';
+import { Search, X, LayoutGrid, LayoutList, ArrowUpDown, ArrowUp, ArrowDown, Plus, Edit3, Trash2, Eye, Film, Tag, Building2, Calendar, Star, ChevronDown, RotateCcw,
+} from 'lucide-react';
 import { mediaApi } from '@/api/mediaApi';
 import { genreApi } from '@/api/genreApi';
 import { studioApi } from '@/api/studioApi';
@@ -39,7 +40,18 @@ function WatchlistPage() {
   const [sortBy, setSortBy] = useState<SortField>((searchParams.get('sortBy') as SortField) || 'watched_date');
   const [sortOrder, setSortOrder] = useState<SortOrder>((searchParams.get('sortOrder') as SortOrder) || 'desc');
   const [viewMode, setViewMode] = useState<ViewMode>('table');
-  const [showFilters, setShowFilters] = useState(false);
+
+  const hasActiveFilters = Boolean(
+    searchText || typeFilter || genreFilter || studioFilter || yearFilter || minScoreFilter
+  );
+  const activeFilterCount = [
+    Boolean(searchText),
+    Boolean(typeFilter),
+    Boolean(genreFilter),
+    Boolean(studioFilter),
+    Boolean(yearFilter),
+    Boolean(minScoreFilter),
+  ].filter(Boolean).length;
 
   // Modals
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -219,169 +231,256 @@ function WatchlistPage() {
         </div>
       </div>
 
-      {/* ─── Search & Filter Bar ─── */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => {
-              setSearchText(e.target.value);
-              setPage(1);
-            }}
-            placeholder="Search anime, series, studio..."
-            className="w-full h-10 pl-9 pr-9 text-sm rounded-xl border outline-none transition-colors"
-            style={{ background: 'var(--bg-card)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
-          />
-          {searchText && (
-            <button
-              onClick={() => {
-                setSearchText('');
+      {/* ─── Unified Search & Inline Filter Bar ─── */}
+      <div
+        className="p-2 sm:p-2.5 rounded-2xl border transition-all shadow-xs"
+        style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}
+      >
+        <div className="flex flex-wrap items-center gap-2">
+          {/* ── Search Input ── */}
+          <div className="relative flex-1 min-w-[200px] sm:min-w-[220px]">
+            <Search
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: searchText ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
+            />
+            <input
+              type="text"
+              value={searchText}
+              onChange={(e) => {
+                setSearchText(e.target.value);
                 setPage(1);
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer"
-              style={{ color: 'var(--text-muted)' }}
+              placeholder="Search anime, series, studio..."
+              className="w-full h-9.5 pl-8.5 pr-8 text-xs sm:text-sm font-medium rounded-xl border outline-none transition-all duration-200"
+              style={{
+                background: 'var(--bg)',
+                borderColor: searchText ? 'var(--color-primary-500)' : 'var(--border)',
+                color: 'var(--text-primary)',
+              }}
+            />
+            {searchText && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchText('');
+                  setPage(1);
+                }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-md hover:opacity-75 transition-opacity cursor-pointer"
+                style={{ color: 'var(--text-muted)' }}
+                title="Clear search"
+              >
+                <X size={13} />
+              </button>
+            )}
+          </div>
+
+          {/* ── Filter: Type ── */}
+          <div className="relative flex-1 sm:flex-initial min-w-[115px]">
+            <div
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: typeFilter ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
             >
-              <X size={14} />
-            </button>
-          )}
-        </div>
-
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="flex items-center gap-2 h-10 px-4 text-sm font-medium rounded-xl border transition-colors cursor-pointer"
-          style={{
-            background: showFilters ? 'var(--color-primary-600)' : 'var(--bg-card)',
-            color: showFilters ? 'white' : 'var(--text-secondary)',
-            borderColor: showFilters ? 'var(--color-primary-500)' : 'var(--border)',
-          }}
-        >
-          <SlidersHorizontal size={16} />
-          <span>Filters</span>
-        </button>
-      </div>
-
-      {/* ─── Filter Panel ─── */}
-      {showFilters && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 p-4 rounded-2xl border" style={{ background: 'var(--bg-card)', borderColor: 'var(--border)' }}>
-          <div>
-            <label className="text-xs font-semibold mb-1 block" style={{ color: 'var(--text-muted)' }}>
-              Type
-            </label>
+              <Film size={13} />
+            </div>
             <select
               value={typeFilter}
               onChange={(e) => {
                 setTypeFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full h-9 px-2 text-sm rounded-lg border outline-none cursor-pointer"
-              style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+              aria-label="Filter by media type"
+              className="w-full h-9.5 pl-7.5 pr-7 text-xs font-medium rounded-xl border outline-none appearance-none cursor-pointer transition-all duration-200"
+              style={{
+                background: typeFilter ? 'var(--color-primary-50)' : 'var(--bg)',
+                borderColor: typeFilter ? 'var(--color-primary-500)' : 'var(--border)',
+                color: typeFilter ? 'var(--color-primary-700)' : 'var(--text-primary)',
+                fontWeight: typeFilter ? 600 : 500,
+              }}
             >
-              <option value="">All</option>
-              <option value="anime">Anime</option>
-              <option value="tv_series">TV Series</option>
+              <option value="" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>All Types</option>
+              <option value="anime" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>Anime</option>
+              <option value="tv_series" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>TV Series</option>
             </select>
+            <ChevronDown
+              size={13}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: typeFilter ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
+            />
           </div>
 
-          <div>
-            <label className="text-xs font-semibold mb-1 block" style={{ color: 'var(--text-muted)' }}>
-              Genre
-            </label>
+          {/* ── Filter: Genre ── */}
+          <div className="relative flex-1 sm:flex-initial min-w-[125px]">
+            <div
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: genreFilter ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
+            >
+              <Tag size={13} />
+            </div>
             <select
               value={genreFilter}
               onChange={(e) => {
                 setGenreFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full h-9 px-2 text-sm rounded-lg border outline-none cursor-pointer"
-              style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+              aria-label="Filter by genre"
+              className="w-full h-9.5 pl-7.5 pr-7 text-xs font-medium rounded-xl border outline-none appearance-none cursor-pointer transition-all duration-200"
+              style={{
+                background: genreFilter ? 'var(--color-primary-50)' : 'var(--bg)',
+                borderColor: genreFilter ? 'var(--color-primary-500)' : 'var(--border)',
+                color: genreFilter ? 'var(--color-primary-700)' : 'var(--text-primary)',
+                fontWeight: genreFilter ? 600 : 500,
+              }}
             >
-              <option value="">All Genres</option>
+              <option value="" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>All Genres</option>
               {genres.map((g) => (
-                <option key={g.id} value={g.id}>
+                <option key={g.id} value={g.id} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
                   {g.name}
                 </option>
               ))}
             </select>
+            <ChevronDown
+              size={13}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: genreFilter ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
+            />
           </div>
 
-          <div>
-            <label className="text-xs font-semibold mb-1 block" style={{ color: 'var(--text-muted)' }}>
-              Studio
-            </label>
+          {/* ── Filter: Studio ── */}
+          <div className="relative flex-1 sm:flex-initial min-w-[125px]">
+            <div
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: studioFilter ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
+            >
+              <Building2 size={13} />
+            </div>
             <select
               value={studioFilter}
               onChange={(e) => {
                 setStudioFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full h-9 px-2 text-sm rounded-lg border outline-none cursor-pointer"
-              style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+              aria-label="Filter by studio"
+              className="w-full h-9.5 pl-7.5 pr-7 text-xs font-medium rounded-xl border outline-none appearance-none cursor-pointer transition-all duration-200"
+              style={{
+                background: studioFilter ? 'var(--color-primary-50)' : 'var(--bg)',
+                borderColor: studioFilter ? 'var(--color-primary-500)' : 'var(--border)',
+                color: studioFilter ? 'var(--color-primary-700)' : 'var(--text-primary)',
+                fontWeight: studioFilter ? 600 : 500,
+              }}
             >
-              <option value="">All Studios</option>
+              <option value="" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>All Studios</option>
               {studios.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option key={s.id} value={s.id} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
                   {s.name}
                 </option>
               ))}
             </select>
+            <ChevronDown
+              size={13}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: studioFilter ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
+            />
           </div>
 
-          <div>
-            <label className="text-xs font-semibold mb-1 block" style={{ color: 'var(--text-muted)' }}>
-              Year
-            </label>
+          {/* ── Filter: Year ── */}
+          <div className="relative flex-1 sm:flex-initial min-w-[110px]">
+            <div
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: yearFilter ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
+            >
+              <Calendar size={13} />
+            </div>
             <select
               value={yearFilter}
               onChange={(e) => {
                 setYearFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full h-9 px-2 text-sm rounded-lg border outline-none cursor-pointer"
-              style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+              aria-label="Filter by release year"
+              className="w-full h-9.5 pl-7.5 pr-7 text-xs font-medium rounded-xl border outline-none appearance-none cursor-pointer transition-all duration-200"
+              style={{
+                background: yearFilter ? 'var(--color-primary-50)' : 'var(--bg)',
+                borderColor: yearFilter ? 'var(--color-primary-500)' : 'var(--border)',
+                color: yearFilter ? 'var(--color-primary-700)' : 'var(--text-primary)',
+                fontWeight: yearFilter ? 600 : 500,
+              }}
             >
-              <option value="">All Years</option>
-              {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - i).map((y) => (
-                <option key={y} value={y}>
+              <option value="" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>All Years</option>
+              {Array.from({ length: 25 }, (_, i) => new Date().getFullYear() - i).map((y) => (
+                <option key={y} value={y} style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>
                   {y}
                 </option>
               ))}
             </select>
+            <ChevronDown
+              size={13}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: yearFilter ? 'var(--color-primary-500)' : 'var(--text-muted)' }}
+            />
           </div>
 
-          <div>
-            <label className="text-xs font-semibold mb-1 block" style={{ color: 'var(--text-muted)' }}>
-              Rating
-            </label>
+          {/* ── Filter: Rating ── */}
+          <div className="relative flex-1 sm:flex-initial min-w-[115px]">
+            <div
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: minScoreFilter ? '#eab308' : 'var(--text-muted)' }}
+            >
+              <Star size={13} className={minScoreFilter ? 'fill-amber-400 text-amber-400' : ''} />
+            </div>
             <select
               value={minScoreFilter}
               onChange={(e) => {
                 setMinScoreFilter(e.target.value);
                 setPage(1);
               }}
-              className="w-full h-9 px-2 text-sm rounded-lg border outline-none cursor-pointer"
-              style={{ background: 'var(--bg)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
+              aria-label="Filter by minimum score"
+              className="w-full h-9.5 pl-7.5 pr-7 text-xs font-medium rounded-xl border outline-none appearance-none cursor-pointer transition-all duration-200"
+              style={{
+                background: minScoreFilter ? 'var(--color-accent-50)' : 'var(--bg)',
+                borderColor: minScoreFilter ? 'var(--color-accent-400)' : 'var(--border)',
+                color: minScoreFilter ? 'var(--color-accent-800)' : 'var(--text-primary)',
+                fontWeight: minScoreFilter ? 600 : 500,
+              }}
             >
-              <option value="">All</option>
-              <option value="9">9+ ★★★★★</option>
-              <option value="8">8+ ★★★★</option>
-              <option value="7">7+ ★★★</option>
-              <option value="6">&lt;7</option>
+              <option value="" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>All Ratings</option>
+              <option value="9" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>9+ ★★★★★</option>
+              <option value="8" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>8+ ★★★★</option>
+              <option value="7" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>7+ ★★★</option>
+              <option value="6" style={{ background: 'var(--bg-card)', color: 'var(--text-primary)' }}>&lt;7 ★</option>
             </select>
+            <ChevronDown
+              size={13}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors"
+              style={{ color: minScoreFilter ? 'var(--color-accent-600)' : 'var(--text-muted)' }}
+            />
           </div>
 
-          <div className="col-span-2 sm:col-span-3 lg:col-span-5 flex justify-end pt-2">
+          {/* ── Clear / Reset Filters Button ── */}
+          {hasActiveFilters && (
             <button
+              type="button"
               onClick={handleResetFilters}
-              className="text-xs font-semibold px-4 py-2 rounded-lg border transition-colors cursor-pointer"
-              style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+              className="flex items-center justify-center gap-1.5 h-9.5 px-3 text-xs font-semibold rounded-xl border transition-all cursor-pointer hover:opacity-90 active:scale-98 shrink-0"
+              style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                borderColor: 'rgba(239, 68, 68, 0.3)',
+                color: '#ef4444',
+              }}
+              title="Clear all filters & search"
             >
-              Reset Filters
+              <RotateCcw size={12} />
+              <span>Clear</span>
+              <span
+                className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold text-white shadow-xs"
+                style={{ background: '#ef4444' }}
+              >
+                {activeFilterCount}
+              </span>
             </button>
-          </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* ─── Main List Content ─── */}
       {isLoading ? (
@@ -390,18 +489,18 @@ function WatchlistPage() {
         <EmptyState title="Failed to load watchlist" description="Check backend API connection and try again." emoji="⚠️" />
       ) : mediaItems.length === 0 ? (
         <EmptyState
-          title={debouncedSearch || typeFilter || genreFilter ? 'No titles found.' : 'Your watchlist is empty.'}
+          title={hasActiveFilters ? 'No titles found.' : 'Your watchlist is empty.'}
           description={
-            debouncedSearch || typeFilter || genreFilter
+            hasActiveFilters
               ? 'Try adjusting your filters or search terms.'
               : 'Start adding anime & TV series to your collection!'
           }
-          emoji={debouncedSearch ? '🔍' : '🎞️'}
+          emoji={hasActiveFilters ? '🔍' : '🎞️'}
           action={
-            debouncedSearch || typeFilter || genreFilter ? (
+            hasActiveFilters ? (
               <button
                 onClick={handleResetFilters}
-                className="text-sm font-semibold px-4 py-2 rounded-xl text-white cursor-pointer"
+                className="text-sm font-semibold px-4 py-2 rounded-xl text-white cursor-pointer hover:opacity-90 transition-opacity"
                 style={{ background: 'var(--color-primary-600)' }}
               >
                 Clear Filters
@@ -571,10 +670,10 @@ function WatchlistPage() {
                   <td className="px-4 py-3 text-xs whitespace-nowrap" style={{ color: 'var(--text-secondary)' }}>
                     {item.watched_date
                       ? new Date(item.watched_date).toLocaleDateString('en-GB', {
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric',
-                        })
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })
                       : '—'}
                   </td>
                   <td className="px-4 py-3 text-right">
